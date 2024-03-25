@@ -1,2 +1,52 @@
-This is new file
-this respository is created by ouwnself
+import numpy as np # linear algebra
+import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
+import matplotlib.pyplot as plt       # matplotlib.pyplot plots data
+%matplotlib inline
+import seaborn as sns
+
+pdata = pd.read_csv("/content/archive (1).zip")
+
+pdata.shape # Check number of columns and rows in data frame
+
+pdata.head() # To check first 5 rows of data set
+
+pdata.isnull().values.any() # If there are any null values in data set
+
+pdata.tail()
+
+columns = list(pdata)[0:-1] # Excluding Outcome column which has only
+pdata[columns].hist(stacked=False, bins=100, figsize=(12,30), layout=(14,2));
+# Histogram of first 8 columns
+
+
+pdata.info()
+
+pdata.corr() # It will show correlation matrix
+
+plot_corr(pdata)
+
+sns.pairplot(pdata,diag_kind='kde')
+
+n_true = len(pdata.loc[pdata['Family size'] == 1])  # Assuming 1 represents True
+n_false = len(pdata.loc[pdata['Family size'] == 0])  # Assuming 0 represents False
+print("Number of true cases: {0} ({1:2.2f}%)".format(n_true, (n_true / (n_true + n_false)) * 100 ))
+print("Number of false cases: {0} ({1:2.2f}%)".format(n_false, (n_false / (n_true + n_false)) * 100))
+
+
+from sklearn.model_selection import train_test_split
+
+X = pdata.drop('Pin code',axis=1)     # Predictor feature columns (8 X m)
+Y = pdata['Pin code']   # Predicted class (1=True, 0=False) (1 X m)
+
+x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=1)
+# 1 is just any random seed number
+
+x_train.head()
+
+print("{0:0.2f}% data is in training set".format((len(x_train)/len(pdata.index)) * 100))
+print("{0:0.2f}% data is in test set".format((len(x_test)/len(pdata.index)) * 100))
+
+x_train.head()
+
+x_train.info()
+
