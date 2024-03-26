@@ -50,3 +50,64 @@ x_train.head()
 
 x_train.info()
 
+
+from sklearn.impute import SimpleImputer
+import pandas as pd
+
+# Define non-numeric columns
+non_numeric_cols = x_train.select_dtypes(exclude=["int64", "float64"]).columns
+
+# Impute missing values in x_test for non-numeric columns with most frequent value
+rep_1 = SimpleImputer(strategy="most_frequent")
+x_test_non_numeric = pd.DataFrame(rep_1.fit_transform(x_test[non_numeric_cols]), columns=non_numeric_cols)
+
+# Impute missing values in x_test for numeric columns with mean value
+numeric_cols = x_test.select_dtypes(include=["int64", "float64"]).columns
+rep_0 = SimpleImputer(strategy="mean")
+x_test_numeric = pd.DataFrame(rep_0.fit_transform(x_test[numeric_cols]), columns=numeric_cols)
+
+# Concatenate imputed non-numeric and numeric columns
+x_test_imputed = pd.concat([x_test_non_numeric, x_test_numeric], axis=1)
+
+# Reassign column names
+x_test_imputed.columns = x_train.columns
+
+# Display head of x_train
+print(x_test_imputed.head())
+
+
+from sklearn import metrics
+from sklearn.linear_model import LogisticRegression
+import pandas as pd
+
+# Check the shape of the dataframes
+print("Shape of x_train:", x_train.shape)
+print("Shape of x_test:", x_test.shape)
+print("Shape of y_train:", y_train.shape)
+
+# Fit the model on train
+model = LogisticRegression()
+model.fit(x_train,y_train)
+
+# Predict on test
+y_predict = model.predict(x_test)
+
+# Check the coefficients
+if x_train.shape[1] == len(model.coef_[0]):
+    coef_df = pd.DataFrame(model.coef_)
+    coef_df['intercept'] = model.intercept_
+    print(coef_df)
+else:
+    print("Number of features in x_train does not match the number of coefficients:")
+
+
+
+model_score = model.score(x_test, y_test)
+print("model_score:",model_score)
+
+cm=metrics.confusion_matrix(y_test,y_pred, labels=[1, 0])
+
+df_cm = pd.DataFrame(cm, index = [i for i in ["1","0"]],
+                  columns = [i for i in ["Predict 1","Predict 0"]])
+plt.figure(figsize = (7,5))
+sns.heatmap(df_cm, annot=True)
